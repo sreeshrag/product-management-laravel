@@ -48,7 +48,7 @@
                 <i class="bi bi-graph-up"></i>
             </div>
             <div class="stat-details">
-                <h3>${{ number_format($totalValue, 2) }}</h3>
+                <h3>₹{{ number_format($totalValue, 2) }}</h3>
                 <p>Total Value</p>
             </div>
         </div>
@@ -95,7 +95,7 @@
                                     <br>
                                     <small class="text-muted">{{ $product->category->name }}</small>
                                 </div>
-                                <span class="badge bg-primary">${{ number_format($product->price, 2) }}</span>
+                                <span class="badge bg-primary">₹{{ number_format($product->price, 2) }}</span>
                             </div>
                         @endforeach
                     </div>

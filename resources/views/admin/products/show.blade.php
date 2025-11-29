@@ -25,7 +25,7 @@
                     </tr>
                     <tr>
                         <th>Price:</th>
-                        <td><strong class="text-success">${{ number_format($product->price, 2) }}</strong></td>
+                        <td><strong class="text-success">₹{{ number_format($product->price, 2) }}</strong></td>
                     </tr>
                     <tr>
                         <th>Status:</th>

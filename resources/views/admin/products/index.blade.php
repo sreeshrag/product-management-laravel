@@ -57,7 +57,7 @@
                                     <span class="badge bg-warning text-dark">{{ $product->category->name }}</span>
                                 </td>
                                 <td>
-                                    <strong>${{ number_format($product->price, 2) }}</strong>
+                                    <strong>₹{{ number_format($product->price, 2) }}</strong>
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $product->status == 'active' ? 'success' : 'secondary' }}">
