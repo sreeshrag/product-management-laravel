@@ -22,7 +22,7 @@ Tech Stack
 Setup (5 minutes)
 
 1. Clone & Install
-git clone <your-repo>
+git clone 
 cd product-management
 composer install
 cp .env.example .env
@@ -122,8 +122,7 @@ Deployment
 Troubleshooting
 Image not showing? php artisan storage:link
 404 on API? php artisan route:clear
-Admin login fail? php artisan db:seed --class=UserSeeder
+Admin login fail? php artisan db:seed --class=AdminSeeder
 
-License: MIT
 
 Built: Nov 30, 2025
