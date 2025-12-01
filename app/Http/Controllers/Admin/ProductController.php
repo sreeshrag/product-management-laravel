@@ -25,14 +25,16 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->input('attributes'));
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
-            'attributes.*.key' => 'nullable|string|max:255',
+            'attributes' => 'nullable|array|max:10',
+            'attributes.*.key' => 'nullable|string|max:100',
             'attributes.*.value' => 'nullable|string|max:255',
         ]);
 
@@ -41,6 +43,7 @@ class ProductController extends Controller
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
+        // Create product
         $product = Product::create([
             'category_id' => $request->category_id,
             'name' => $request->name,
@@ -50,13 +53,18 @@ class ProductController extends Controller
             'status' => $request->status,
         ]);
 
-        if ($request->has('attributes')) {
-            foreach ($request->attributes as $attribute) {
-                if (!empty($attribute['key']) && !empty($attribute['value'])) {
-                    ProductAttribute::create([
-                        'product_id' => $product->id,
-                        'attribute_key' => $attribute['key'],
-                        'attribute_value' => $attribute['value'],
+        // Create product attributes
+        $attributes = $request->input('attributes');
+        
+        if ($request->has('attributes') && is_array($attributes)) {
+            foreach ($attributes as $attribute) {
+                // Check if both key and value exist and are not empty
+                if (isset($attribute['key']) && isset($attribute['value']) && 
+                    !empty(trim($attribute['key'])) && !empty(trim($attribute['value']))) {
+                    
+                    $product->attributes()->create([
+                        'attribute_key' => trim($attribute['key']),
+                        'attribute_value' => trim($attribute['value']),
                     ]);
                 }
             }
@@ -84,13 +92,15 @@ class ProductController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
-            'attributes.*.key' => 'nullable|string|max:255',
+            'attributes' => 'nullable|array|max:10',
+            'attributes.*.key' => 'nullable|string|max:100',
             'attributes.*.value' => 'nullable|string|max:255',
         ]);
+        // dd($request->all());
 
         $imagePath = $product->image;
         if ($request->hasFile('image')) {
@@ -110,15 +120,20 @@ class ProductController extends Controller
             'status' => $request->status,
         ]);
 
+        // Update product attributes - delete old ones and create new ones
+        $attributes = $request->input('attributes');
+        
         $product->attributes()->delete();
 
-        if ($request->has('attributes')) {
-            foreach ($request->attributes as $attribute) {
-                if (!empty($attribute['key']) && !empty($attribute['value'])) {
-                    ProductAttribute::create([
-                        'product_id' => $product->id,
-                        'attribute_key' => $attribute['key'],
-                        'attribute_value' => $attribute['value'],
+        if ($request->has('attributes') && is_array($attributes)) {
+            foreach ($attributes as $attribute) {
+                // Check if both key and value exist and are not empty
+                if (isset($attribute['key']) && isset($attribute['value']) && 
+                    !empty(trim($attribute['key'])) && !empty(trim($attribute['value']))) {
+                    
+                    $product->attributes()->create([
+                        'attribute_key' => trim($attribute['key']),
+                        'attribute_value' => trim($attribute['value']),
                     ]);
                 }
             }
@@ -134,7 +149,7 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->image);
         }
 
-        $product->delete();
+        $product->delete(); // Attributes auto-delete via cascade
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully!');

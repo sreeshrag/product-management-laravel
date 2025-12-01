@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductApiController extends Controller
 {
-    
+
     public function index(Request $request)
     {
         $query = Product::with(['category', 'attributes'])->where('status', 'active');
@@ -29,9 +29,9 @@ class ProductApiController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('description', 'like', "%{$request->search}%");
+                    ->orWhere('description', 'like', "%{$request->search}%");
             });
         }
 
@@ -52,7 +52,10 @@ class ProductApiController extends Controller
         ]);
     }
 
-   
+
+    /**
+     * POST /api/products - Create product
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -91,20 +94,16 @@ class ProductApiController extends Controller
             'status' => $request->status,
         ]);
 
-        // Create attributes
+        // FIXED: Use relationship to create attributes
         if ($request->filled('attributes')) {
             foreach ($request->attributes as $attribute) {
-                if (!empty($attribute['key']) && !empty($attribute['value'])) {
-                    ProductAttribute::create([
-                        'product_id' => $product->id,
-                        'attribute_key' => $attribute['key'],
-                        'attribute_value' => $attribute['value'],
-                    ]);
-                }
+                $product->attributes()->create([  // ✅ Use relationship
+                    'attribute_key' => $attribute['key'],
+                    'attribute_value' => $attribute['value'],
+                ]);
             }
         }
 
-        // Reload with relationships
         $product->load(['category', 'attributes']);
 
         return response()->json([
@@ -114,26 +113,9 @@ class ProductApiController extends Controller
         ], 201);
     }
 
-   
-    public function show($id)
-    {
-        $product = Product::with(['category', 'attributes'])->find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product retrieved successfully',
-            'data' => new ProductResource($product)
-        ]);
-    }
-
-   
+    /**
+     * PUT /api/products/{id} - Update product
+     */
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
@@ -184,23 +166,18 @@ class ProductApiController extends Controller
             'status' => $request->status,
         ]);
 
-        // Delete old attributes
-        $product->attributes()->delete();
+        // FIXED: Delete old attributes and create new ones using relationship
+        $product->attributes()->delete();  // ✅ Delete via relationship
 
-        // Create new attributes
         if ($request->filled('attributes')) {
             foreach ($request->attributes as $attribute) {
-                if (!empty($attribute['key']) && !empty($attribute['value'])) {
-                    ProductAttribute::create([
-                        'product_id' => $product->id,
-                        'attribute_key' => $attribute['key'],
-                        'attribute_value' => $attribute['value'],
-                    ]);
-                }
+                $product->attributes()->create([  // ✅ Use relationship
+                    'attribute_key' => $attribute['key'],
+                    'attribute_value' => $attribute['value'],
+                ]);
             }
         }
 
-        // Reload with relationships
         $product->load(['category', 'attributes']);
 
         return response()->json([
@@ -210,7 +187,29 @@ class ProductApiController extends Controller
         ]);
     }
 
-   
+
+    public function show($id)
+    {
+        $product = Product::with(['category', 'attributes'])->find($id);
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product retrieved successfully',
+            'data' => new ProductResource($product)
+        ]);
+    }
+
+
+
+
+
     public function destroy($id)
     {
         $product = Product::find($id);

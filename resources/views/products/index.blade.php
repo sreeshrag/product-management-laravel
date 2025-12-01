@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Products - Product Management System</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
+
     <style>
         :root {
-          --primary-color: #66c9eaff;
+            --primary-color: #66c9eaff;
             --secondary-color: #2b86aaff;
         }
 
@@ -22,14 +23,14 @@
 
         .navbar {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .filter-sidebar {
             background: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             position: sticky;
             top: 20px;
         }
@@ -77,7 +78,7 @@
             border-radius: 10px;
             overflow: hidden;
             transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -85,7 +86,7 @@
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         .product-image {
@@ -182,7 +183,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.8);
             display: none;
             align-items: center;
             justify-content: center;
@@ -203,8 +204,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .results-info {
@@ -212,7 +218,7 @@
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -235,6 +241,7 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
@@ -265,10 +272,7 @@
                         <div class="filter-title">
                             <i class="bi bi-search"></i> Search
                         </div>
-                        <input type="text" 
-                               class="form-control" 
-                               id="searchInput" 
-                               placeholder="Search products...">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
                     </div>
 
                     <div class="filter-section">
@@ -279,7 +283,7 @@
                             <span>All Categories</span>
                             <span class="badge bg-secondary" id="allCount">{{ $totalProducts }}</span>
                         </div>
-                        @foreach($categories as $category)
+                        @foreach ($categories as $category)
                             <div class="category-item" data-category="{{ $category->id }}">
                                 <span>{{ $category->name }}</span>
                                 <span class="badge bg-secondary">{{ $category->products_count }}</span>
@@ -292,21 +296,11 @@
                             <i class="bi bi-currency-rupee"></i> Price Range
                         </div>
                         <div class="price-inputs">
-                            <input type="number" 
-                                   class="form-control form-control-sm" 
-                                   id="minPrice" 
-                                   placeholder="Min"
-                                   min="0"
-                                   step="0.01"
-                                   value="{{ $priceRange->min_price ?? 0 }}">
+                            <input type="number" class="form-control form-control-sm" id="minPrice" placeholder="Min"
+                                min="0" step="0.01" value="{{ $priceRange->min_price ?? 0 }}">
                             <span>-</span>
-                            <input type="number" 
-                                   class="form-control form-control-sm" 
-                                   id="maxPrice" 
-                                   placeholder="Max"
-                                   min="0"
-                                   step="0.01"
-                                   value="{{ $priceRange->max_price ?? 1000 }}">
+                            <input type="number" class="form-control form-control-sm" id="maxPrice" placeholder="Max"
+                                min="0" step="0.01" value="{{ $priceRange->max_price ?? 1000 }}">
                         </div>
                         <button class="btn btn-primary btn-sm w-100 mt-2" onclick="applyFilters()">
                             Apply
@@ -399,7 +393,7 @@
             $('#loadingOverlay').addClass('active');
 
             $.ajax({
-                url: '{{ route("products.filter") }}',
+                url: '{{ route('products.filter') }}',
                 method: 'GET',
                 data: currentFilters,
                 success: function(response) {
@@ -433,21 +427,22 @@
             }
 
             products.forEach(function(product) {
-                const imageHtml = product.image 
-                    ? `<img src="/storage/${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" class="product-image">`
-                    : `<div class="no-image"><i class="bi bi-image" style="font-size: 48px;"></i></div>`;
+                const imageHtml = product.image ?
+                    `<img src="{{ asset('storage') }}/${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" class="product-image">` :
+                    `<div class="no-image"><i class="bi bi-image" style="font-size: 48px;"></i></div>`;
 
-                const description = product.description 
-                    ? `<p class="product-description">${escapeHtml(product.description)}</p>`
-                    : '';
 
-                const attributesHtml = product.attributes && product.attributes.length > 0
-                    ? `<div class="product-attributes">
+                const description = product.description ?
+                    `<p class="product-description">${escapeHtml(product.description)}</p>` :
+                    '';
+
+                const attributesHtml = product.attributes && product.attributes.length > 0 ?
+                    `<div class="product-attributes">
                         ${product.attributes.map(attr => 
                             `<span class="attribute-badge"><strong>${escapeHtml(attr.attribute_key)}:</strong> ${escapeHtml(attr.attribute_value)}</span>`
                         ).join('')}
-                       </div>`
-                    : '';
+                       </div>` :
+                    '';
 
                 const productCard = `
                     <div class="col-md-6 col-lg-4 mb-4">
@@ -475,7 +470,8 @@
 
             let filterText = 'Showing all products';
             if (currentFilters.category_id) {
-                const categoryName = $(`.category-item[data-category="${currentFilters.category_id}"]`).find('span:first').text();
+                const categoryName = $(`.category-item[data-category="${currentFilters.category_id}"]`).find('span:first')
+                    .text();
                 filterText = `Filtered by: ${categoryName}`;
             }
             if (currentFilters.search) {
@@ -484,7 +480,7 @@
             if (currentFilters.min_price || currentFilters.max_price) {
                 filterText += ` | Price: ₹${currentFilters.min_price || '0'} - ₹${currentFilters.max_price || '∞'}`;
             }
-            
+
             $('#filterStatus').text(filterText);
         }
 
@@ -497,8 +493,11 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            return String(text).replace(/[&<>"']/g, function(m) {
+                return map[m];
+            });
         }
     </script>
 </body>
+
 </html>

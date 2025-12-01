@@ -235,12 +235,23 @@ function addAttribute() {
         </div>
     `;
     container.insertAdjacentHTML('beforeend', newRow);
+    console.log('Added attribute row with index:', attributeIndex);
     attributeIndex++;
 }
 
 function removeAttribute(button) {
+    const container = document.getElementById('attributes-container');
     const row = button.closest('.attribute-row');
-    row.remove();
+    
+    // Prevent removing the last row
+    if (container.querySelectorAll('.attribute-row').length > 1) {
+        row.remove();
+        console.log('Removed attribute row');
+    } else {
+        // Clear the inputs instead of removing the row
+        row.querySelectorAll('input').forEach(input => input.value = '');
+        console.log('Cleared last attribute row (cannot remove)');
+    }
 }
 
 function previewImage(event) {
